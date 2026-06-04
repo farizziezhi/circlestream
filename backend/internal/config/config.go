@@ -1,6 +1,9 @@
 package config
 
-import "os"
+import (
+	"os"
+	"strings"
+)
 
 type Config struct {
 	Port          string
@@ -19,6 +22,9 @@ type Config struct {
 }
 
 func Load() *Config {
+	redisURL := mustGetEnv("UPSTASH_REDIS_REST_URL")
+	redisPassword := mustGetEnv("UPSTASH_REDIS_REST_TOKEN")
+
 	return &Config{
 		Port:          getEnv("PORT", "8080"),
 		TursoURL:      mustGetEnv("TURSO_DATABASE_URL"),
@@ -30,10 +36,20 @@ func Load() *Config {
 		R2BucketName:  getEnv("R2_BUCKET_NAME", "circlestream-media"),
 		R2PublicURL:   mustGetEnv("R2_PUBLIC_URL"),
 		R2Endpoint:    mustGetEnv("R2_ENDPOINT"),
-		RedisAddr:     mustGetEnv("UPSTASH_REDIS_ADDR"),
-		RedisPassword: mustGetEnv("UPSTASH_REDIS_PASSWORD"),
+		RedisAddr:     parseRedisAddr(redisURL),
+		RedisPassword: strings.Trim(redisPassword, `"'`),
 		AblyAPIKey:    mustGetEnv("ABLY_API_KEY"),
 	}
+}
+
+func parseRedisAddr(url string) string {
+	url = strings.Trim(url, `"'`)
+	url = strings.TrimPrefix(url, "https://")
+	url = strings.TrimPrefix(url, "http://")
+	if !strings.Contains(url, ":") {
+		url = url + ":6379"
+	}
+	return url
 }
 
 func getEnv(key, fallback string) string {
