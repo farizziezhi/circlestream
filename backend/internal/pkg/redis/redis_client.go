@@ -105,3 +105,7 @@ func (c *RedisClient) DeletePostReactions(ctx context.Context, postID int64) err
 	}
 	return c.rdb.Del(ctx, keys...).Err()
 }
+
+func (c *RedisClient) Ping(ctx context.Context) error {
+	return c.rdb.Ping(ctx).Err()
+}

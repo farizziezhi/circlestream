@@ -108,6 +108,31 @@ func Setup(app *fiber.App, db *sql.DB, cfg *config.Config) {
 
 	// Health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"status": "ok"})
+		dbErr := db.PingContext(c.Context())
+		redisErr := redisClient.Ping(c.Context())
+
+		status := "ok"
+		dbStatus := "connected"
+		redisStatus := "connected"
+
+		if dbErr != nil {
+			status = "error"
+			dbStatus = dbErr.Error()
+		}
+		if redisErr != nil {
+			status = "error"
+			redisStatus = redisErr.Error()
+		}
+
+		statusCode := fiber.StatusOK
+		if status != "ok" {
+			statusCode = fiber.StatusInternalServerError
+		}
+
+		return c.Status(statusCode).JSON(fiber.Map{
+			"status":   status,
+			"database": dbStatus,
+			"redis":    redisStatus,
+		})
 	})
 }
