@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/farizziezhi/circlestream/backend/internal/dto"
@@ -38,14 +39,16 @@ type circleService struct {
 	db         *sql.DB
 	circleRepo repository.CircleRepository
 	inviteRepo repository.InviteRepository
+	userRepo   repository.UserRepository
 	ablyClient *ably.AblyClient
 }
 
-func NewCircleService(db *sql.DB, circleRepo repository.CircleRepository, inviteRepo repository.InviteRepository, ablyClient *ably.AblyClient) CircleService {
+func NewCircleService(db *sql.DB, circleRepo repository.CircleRepository, inviteRepo repository.InviteRepository, userRepo repository.UserRepository, ablyClient *ably.AblyClient) CircleService {
 	return &circleService{
 		db:         db,
 		circleRepo: circleRepo,
 		inviteRepo: inviteRepo,
+		userRepo:   userRepo,
 		ablyClient: ablyClient,
 	}
 }
@@ -206,6 +209,20 @@ func (s *circleService) JoinCircle(ctx context.Context, userID int64, code strin
 
 	updatedMemberCount, _ := s.circleRepo.GetMemberCount(ctx, ic.CircleID)
 
+	joinedUser, err := s.userRepo.FindByID(ctx, userID)
+	if err == nil {
+		channelName := fmt.Sprintf("circle:%d", ic.CircleID)
+		eventPayload := map[string]interface{}{
+			"circle_id": ic.CircleID,
+			"user": map[string]interface{}{
+				"id":       joinedUser.ID,
+				"username": joinedUser.Username,
+			},
+			"member_count": updatedMemberCount,
+		}
+		_ = s.ablyClient.Publish(channelName, "member_joined", eventPayload)
+	}
+
 	return &dto.JoinCircleResponse{
 		Circle: dto.JoinCircleResponseCircle{
 			ID:          circle.ID,
@@ -231,7 +248,27 @@ func (s *circleService) LeaveCircle(ctx context.Context, userID int64, circleID 
 	if role == "owner" {
 		return ErrOwnerCannotLeave
 	}
-	return s.circleRepo.RemoveMember(ctx, circleID, userID)
+	err = s.circleRepo.RemoveMember(ctx, circleID, userID)
+	if err != nil {
+		return err
+	}
+
+	leftUser, err := s.userRepo.FindByID(ctx, userID)
+	if err == nil {
+		updatedMemberCount, _ := s.circleRepo.GetMemberCount(ctx, circleID)
+		channelName := fmt.Sprintf("circle:%d", circleID)
+		eventPayload := map[string]interface{}{
+			"circle_id": circleID,
+			"user": map[string]interface{}{
+				"id":       leftUser.ID,
+				"username": leftUser.Username,
+			},
+			"member_count": updatedMemberCount,
+		}
+		_ = s.ablyClient.Publish(channelName, "member_left", eventPayload)
+	}
+
+	return nil
 }
 
 func (s *circleService) GetDetail(ctx context.Context, circleID int64) (*dto.CircleDetailResponseData, error) {

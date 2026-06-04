@@ -8,6 +8,7 @@ import (
 	"github.com/farizziezhi/circlestream/backend/internal/middleware"
 	"github.com/farizziezhi/circlestream/backend/internal/pkg/ably"
 	"github.com/farizziezhi/circlestream/backend/internal/pkg/r2"
+	"github.com/farizziezhi/circlestream/backend/internal/pkg/redis"
 	"github.com/farizziezhi/circlestream/backend/internal/repository"
 	"github.com/farizziezhi/circlestream/backend/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -31,6 +32,7 @@ func Setup(app *fiber.App, db *sql.DB, cfg *config.Config) {
 	circleRepo := repository.NewCircleRepository(db)
 	inviteRepo := repository.NewInviteRepository(db)
 	postRepo := repository.NewPostRepository(db)
+	reactionRepo := repository.NewReactionRepository(db)
 
 	// Clients
 	ablyClient, err := ably.NewClient(cfg)
@@ -43,11 +45,14 @@ func Setup(app *fiber.App, db *sql.DB, cfg *config.Config) {
 		panic("failed to initialize r2 client: " + err.Error())
 	}
 
+	redisClient := redis.NewClient(cfg)
+
 	// Services
 	authSvc := service.NewAuthService(userRepo, tokenRepo, cfg)
-	circleSvc := service.NewCircleService(db, circleRepo, inviteRepo, ablyClient)
+	circleSvc := service.NewCircleService(db, circleRepo, inviteRepo, userRepo, ablyClient)
 	mediaSvc := service.NewMediaService(r2Client, postRepo, circleRepo, userRepo, ablyClient, cfg)
-	postSvc := service.NewPostService(postRepo, circleRepo)
+	postSvc := service.NewPostService(postRepo, circleRepo, redisClient)
+	reactionSvc := service.NewReactionService(redisClient, reactionRepo, postRepo, circleRepo, ablyClient)
 
 	// Handlers
 	authHandler := handler.NewAuthHandler(authSvc)
@@ -55,6 +60,7 @@ func Setup(app *fiber.App, db *sql.DB, cfg *config.Config) {
 	ablyHandler := handler.NewAblyHandler(ablyClient, circleRepo)
 	mediaHandler := handler.NewMediaHandler(mediaSvc)
 	postHandler := handler.NewPostHandler(postSvc)
+	reactionHandler := handler.NewReactionHandler(reactionSvc)
 
 	api := app.Group("/v1")
 
@@ -95,6 +101,10 @@ func Setup(app *fiber.App, db *sql.DB, cfg *config.Config) {
 
 	// Single post route (membership validated inside handler/service)
 	protected.Get("/posts/:post_id", postHandler.GetPost)
+
+	// Reaction routes (membership validated inside service)
+	protected.Post("/posts/:post_id/reactions", reactionHandler.AddReaction)
+	protected.Get("/posts/:post_id/reactions", reactionHandler.GetReactions)
 
 	// Health check endpoint
 	app.Get("/health", func(c *fiber.Ctx) error {
