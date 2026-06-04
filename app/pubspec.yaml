@@ -1,0 +1,67 @@
+name: circlestream
+description: "CircleStream - Private real-time photo sharing app for small friend groups."
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  
+  # UI
+  google_fonts: ^6.1.0
+  
+  # State management
+  flutter_bloc: ^8.1.6
+  equatable: ^2.0.5
+  
+  # Navigation
+  go_router: ^14.0.0
+  
+  # Network
+  dio: ^5.4.0
+  
+  # Image
+  flutter_image_compress: ^2.3.0
+  cached_network_image: ^3.3.1
+  
+  # Camera
+  camera: ^0.11.0+2
+  
+  # Real-time
+  ably_flutter: ^1.2.24
+  
+  # Storage
+  flutter_secure_storage: ^9.2.2
+  
+  # Utilities
+  uuid: ^4.4.0
+  intl: ^0.19.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  bloc_test: ^9.1.7
+  mocktail: ^1.0.3
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/DMSans-Medium.ttf
+          weight: 500
+    - family: Poppins
+      fonts:
+        - asset: assets/fonts/Poppins-SemiBold.ttf
+          weight: 600
