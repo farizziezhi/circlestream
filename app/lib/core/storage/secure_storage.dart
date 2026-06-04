@@ -1,7 +1,9 @@
 library circlestream.core.storage.secure_storage;
 
+import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/constants.dart';
+import '../../shared/models/user_model.dart';
 
 class SecureStorage {
   static const _storage = FlutterSecureStorage();
@@ -28,8 +30,18 @@ class SecureStorage {
   Future<String?> getUserId() =>
       _storage.read(key: AppConstants.userIdKey);
 
-  Future<void> saveUserId(String id) =>
-      _storage.write(key: AppConstants.userIdKey, value: id);
+  Future<void> saveUser(UserModel user) =>
+      _storage.write(key: 'user_profile', value: jsonEncode(user.toJson()));
+
+  Future<UserModel?> getUser() async {
+    final str = await _storage.read(key: 'user_profile');
+    if (str == null) return null;
+    try {
+      return UserModel.fromJson(jsonDecode(str) as Map<String, dynamic>);
+    } catch (_) {
+      return null;
+    }
+  }
 
   Future<void> clear() => _storage.deleteAll();
 }

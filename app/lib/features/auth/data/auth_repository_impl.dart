@@ -37,6 +37,7 @@ class AuthRepositoryImpl implements AuthRepository {
       refreshToken: refreshToken,
     );
     await _storage.saveUserId(user.id.toString());
+    await _storage.saveUser(user);
 
     return AuthResult(
       user: user,
@@ -71,6 +72,7 @@ class AuthRepositoryImpl implements AuthRepository {
       refreshToken: refreshToken,
     );
     await _storage.saveUserId(user.id.toString());
+    await _storage.saveUser(user);
 
     return AuthResult(
       user: user,
