@@ -1,2 +1,7 @@
-// TODO: Implement widget tests
-void main() {}
+import 'package:flutter_test/flutter_test.dart';
+
+void main() {
+  test('initial placeholder test', () {
+    expect(true, isTrue);
+  });
+}

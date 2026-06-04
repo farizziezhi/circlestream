@@ -104,12 +104,12 @@ class _EmojiButtonState extends State<_EmojiButton>
           ),
           decoration: BoxDecoration(
             color: widget.isActive
-                ? AppColors.primary.withOpacity(0.12)
+                ? AppColors.primary.withValues(alpha: 0.12)
                 : AppColors.surfaceAlt,
             borderRadius: BorderRadius.circular(AppRadius.pill),
             border: Border.all(
               color: widget.isActive
-                  ? AppColors.primary.withOpacity(0.3)
+                  ? AppColors.primary.withValues(alpha: 0.3)
                   : Colors.transparent,
               width: 1.0,
             ),

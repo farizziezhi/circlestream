@@ -36,7 +36,7 @@ class AppTheme {
         labelMedium: GoogleFonts.dmSans(textStyle: AppTextStyles.labelMedium),
         labelSmall: GoogleFonts.dmSans(textStyle: AppTextStyles.caption),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         color: AppColors.surface,
         elevation: 0,
         shape: RoundedRectangleBorder(
