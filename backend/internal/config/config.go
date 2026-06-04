@@ -12,6 +12,7 @@ type Config struct {
 	R2SecretKey   string
 	R2BucketName  string
 	R2PublicURL   string
+	R2Endpoint    string
 	RedisAddr     string
 	RedisPassword string
 	AblyAPIKey    string
@@ -28,6 +29,7 @@ func Load() *Config {
 		R2SecretKey:   mustGetEnv("R2_SECRET_ACCESS_KEY"),
 		R2BucketName:  getEnv("R2_BUCKET_NAME", "circlestream-media"),
 		R2PublicURL:   mustGetEnv("R2_PUBLIC_URL"),
+		R2Endpoint:    mustGetEnv("R2_ENDPOINT"),
 		RedisAddr:     mustGetEnv("UPSTASH_REDIS_ADDR"),
 		RedisPassword: mustGetEnv("UPSTASH_REDIS_PASSWORD"),
 		AblyAPIKey:    mustGetEnv("ABLY_API_KEY"),

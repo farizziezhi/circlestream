@@ -19,10 +19,11 @@ type R2Client struct {
 	publicURL     string
 }
 
+// Note: Backblaze B2 bucket CORS must be configured in the Backblaze dashboard to allow PUT requests from any origin.
 func NewClient(cfg *appConfig.Config) (*R2Client, error) {
 	r2Resolver := aws.EndpointResolverWithOptionsFunc(func(service, region string, options ...interface{}) (aws.Endpoint, error) {
 		return aws.Endpoint{
-			URL:           fmt.Sprintf("https://%s.r2.cloudflarestorage.com", cfg.R2AccountID),
+			URL:           cfg.R2Endpoint,
 			SigningRegion: "auto",
 		}, nil
 	})
