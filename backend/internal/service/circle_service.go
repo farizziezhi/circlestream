@@ -14,14 +14,14 @@ import (
 )
 
 var (
-	ErrCircleFull        = errors.New("circle_full")
-	ErrAlreadyMember     = errors.New("already_member")
-	ErrInviteNotFound    = errors.New("invite_code_not_found")
-	ErrInviteExpired     = errors.New("invite_code_expired")
-	ErrInviteExhausted   = errors.New("invite_code_exhausted")
-	ErrOwnerCannotLeave  = errors.New("owner_cannot_leave")
-	ErrCircleNotFound    = errors.New("circle_not_found")
-	ErrNotCircleMember   = errors.New("not_member")
+	ErrCircleFull       = errors.New("circle_full")
+	ErrAlreadyMember    = errors.New("already_member")
+	ErrInviteNotFound   = errors.New("invite_code_not_found")
+	ErrInviteExpired    = errors.New("invite_code_expired")
+	ErrInviteExhausted  = errors.New("invite_code_exhausted")
+	ErrOwnerCannotLeave = errors.New("owner_cannot_leave")
+	ErrCircleNotFound   = errors.New("circle_not_found")
+	ErrNotCircleMember  = errors.New("not_member")
 )
 
 type CircleService interface {
@@ -35,18 +35,18 @@ type CircleService interface {
 }
 
 type circleService struct {
-	db          *sql.DB
-	circleRepo  repository.CircleRepository
-	inviteRepo  repository.InviteRepository
-	ablyClient  *ably.Client
+	db         *sql.DB
+	circleRepo repository.CircleRepository
+	inviteRepo repository.InviteRepository
+	ablyClient *ably.AblyClient
 }
 
-func NewCircleService(db *sql.DB, circleRepo repository.CircleRepository, inviteRepo repository.InviteRepository, ablyClient *ably.Client) CircleService {
+func NewCircleService(db *sql.DB, circleRepo repository.CircleRepository, inviteRepo repository.InviteRepository, ablyClient *ably.AblyClient) CircleService {
 	return &circleService{
-		db:          db,
-		circleRepo:  circleRepo,
-		inviteRepo:  inviteRepo,
-		ablyClient:  ablyClient,
+		db:         db,
+		circleRepo: circleRepo,
+		inviteRepo: inviteRepo,
+		ablyClient: ablyClient,
 	}
 }
 

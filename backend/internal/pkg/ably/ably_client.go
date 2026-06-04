@@ -52,4 +52,3 @@ func (c *AblyClient) GenerateToken(circleID int64) (string, error) {
 
 	return tokenRequest.Token, nil
 }
-
