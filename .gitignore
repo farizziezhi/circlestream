@@ -1,0 +1,59 @@
+# Env files
+.env
+.env.*
+!.env.example
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Go
+bin/
+out/
+/dist/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+build/
+ios/.symlinks/
+ios/Pods/
+ios/Flutter/.flutter-plugins
+ios/Flutter/Generated.xcconfig
+ios/Flutter/flutter_export_environment.sh
+android/key.properties
+android/app/local.properties
+android/.gradle/
+android/app/build/
+android/local.properties
+*.mode1v3
+*.mode2v3
+*.normal
+*.perspectivev3
+/flutter_*.png
+/flutter_*.jpg
+/flutter_*.jpeg
+
+# Local testing/log files
+*.log
