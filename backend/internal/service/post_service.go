@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/farizziezhi/circlestream/backend/internal/dto"
+	"github.com/farizziezhi/circlestream/backend/internal/pkg/redis"
 	"github.com/farizziezhi/circlestream/backend/internal/repository"
 )
 
@@ -16,14 +17,16 @@ type PostService interface {
 }
 
 type postService struct {
-	postRepo   repository.PostRepository
-	circleRepo repository.CircleRepository
+	postRepo    repository.PostRepository
+	circleRepo  repository.CircleRepository
+	redisClient *redis.RedisClient
 }
 
-func NewPostService(postRepo repository.PostRepository, circleRepo repository.CircleRepository) PostService {
+func NewPostService(postRepo repository.PostRepository, circleRepo repository.CircleRepository, redisClient *redis.RedisClient) PostService {
 	return &postService{
-		postRepo:   postRepo,
-		circleRepo: circleRepo,
+		postRepo:    postRepo,
+		circleRepo:  circleRepo,
+		redisClient: redisClient,
 	}
 }
 
@@ -51,8 +54,28 @@ func (s *postService) GetFeed(ctx context.Context, circleID int64, cursor *time.
 		nextCursor = &cursorStr
 	}
 
+	postIDs := make([]int64, len(posts))
+	for i, p := range posts {
+		postIDs[i] = p.ID
+	}
+
+	reactionsBatch, err := s.redisClient.GetReactionCountsBatch(ctx, postIDs)
+	if err != nil {
+		reactionsBatch = make(map[int64]map[string]int64)
+	}
+
 	var dtoList []dto.PostResponse
 	for _, p := range posts {
+		counts := reactionsBatch[p.ID]
+		if counts == nil {
+			counts = make(map[string]int64)
+		}
+
+		dtoCounts := make(map[string]int)
+		for k, v := range counts {
+			dtoCounts[k] = int(v)
+		}
+
 		dtoList = append(dtoList, dto.PostResponse{
 			ID:             p.ID,
 			CircleID:       p.CircleID,
@@ -60,7 +83,7 @@ func (s *postService) GetFeed(ctx context.Context, circleID int64, cursor *time.
 			Username:       p.Username,
 			ImageURL:       p.ImageURL,
 			ThumbnailURL:   p.ThumbnailURL,
-			ReactionCounts: map[string]int{},
+			ReactionCounts: dtoCounts,
 			CreatedAt:      p.CreatedAt,
 		})
 	}
@@ -89,6 +112,16 @@ func (s *postService) GetPost(ctx context.Context, userID, postID int64) (*dto.P
 		return nil, ErrNotCircleMember
 	}
 
+	counts, err := s.redisClient.GetReactionCounts(ctx, postID)
+	if err != nil {
+		counts = make(map[string]int64)
+	}
+
+	dtoCounts := make(map[string]int)
+	for k, v := range counts {
+		dtoCounts[k] = int(v)
+	}
+
 	return &dto.PostResponse{
 		ID:             post.ID,
 		CircleID:       post.CircleID,
@@ -96,7 +129,7 @@ func (s *postService) GetPost(ctx context.Context, userID, postID int64) (*dto.P
 		Username:       post.Username,
 		ImageURL:       post.ImageURL,
 		ThumbnailURL:   post.ThumbnailURL,
-		ReactionCounts: map[string]int{},
+		ReactionCounts: dtoCounts,
 		CreatedAt:      post.CreatedAt,
 	}, nil
 }
