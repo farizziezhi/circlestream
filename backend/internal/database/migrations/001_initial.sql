@@ -1,9 +1,6 @@
 -- CircleStream Initial Schema
 -- Migration: 001_initial
 
-PRAGMA foreign_keys = ON;
-PRAGMA journal_mode = WAL;
-
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
