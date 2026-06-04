@@ -8,6 +8,8 @@ import 'app_spacing.dart';
 import 'app_radius.dart';
 
 class AppTheme {
+  static ThemeData light() => lightTheme;
+
   static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
