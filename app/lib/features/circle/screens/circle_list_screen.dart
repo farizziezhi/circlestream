@@ -1,3 +1,14 @@
-library circlestream.lib.features.circle.screens.circle_list_screen;
+library circlestream.features.circle.screens.circle_list_screen;
 
-// TODO: List of joined circles screen
+import 'package:flutter/material.dart';
+
+class CircleListScreen extends StatelessWidget {
+  const CircleListScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: Text('Circle List Screen')),
+    );
+  }
+}
