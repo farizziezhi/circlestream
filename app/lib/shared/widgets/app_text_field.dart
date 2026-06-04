@@ -14,6 +14,7 @@ class AppTextField extends StatefulWidget {
   final Widget? prefixIcon;
   final String? errorText;
   final ValueChanged<String>? onChanged;
+  final TextInputType keyboardType;
 
   const AppTextField({
     super.key,
@@ -24,6 +25,7 @@ class AppTextField extends StatefulWidget {
     this.prefixIcon,
     this.errorText,
     this.onChanged,
+    this.keyboardType = TextInputType.text,
   });
 
   @override
@@ -70,6 +72,7 @@ class _AppTextFieldState extends State<AppTextField> {
         TextField(
           controller: widget.controller,
           obscureText: _obscureText,
+          keyboardType: widget.keyboardType,
           onChanged: widget.onChanged,
           style: GoogleFonts.dmSans(
             textStyle: AppTextStyles.bodyMedium,
