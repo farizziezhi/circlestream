@@ -6,6 +6,7 @@ import 'app.dart';
 import 'core/di/injection.dart';
 import 'features/auth/bloc/auth_bloc.dart';
 import 'features/auth/bloc/auth_event.dart';
+import 'features/circle/bloc/circle_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,8 +15,15 @@ void main() async {
   await setupDependencies();
 
   runApp(
-    BlocProvider<AuthBloc>(
-      create: (context) => sl<AuthBloc>()..add(CheckAuthEvent()),
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<AuthBloc>(
+          create: (context) => sl<AuthBloc>()..add(CheckAuthEvent()),
+        ),
+        BlocProvider<CircleBloc>(
+          create: (context) => sl<CircleBloc>(),
+        ),
+      ],
       child: const CircleStreamApp(),
     ),
   );
