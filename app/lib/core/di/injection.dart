@@ -17,6 +17,9 @@ import '../../features/camera/data/upload_repository_impl.dart';
 import '../../features/camera/bloc/upload_bloc.dart';
 import '../../features/realtime/services/ably_service.dart';
 import '../../features/realtime/bloc/realtime_bloc.dart';
+import '../../features/reaction/data/reaction_repository.dart';
+import '../../features/reaction/data/reaction_repository_impl.dart';
+import '../../features/reaction/bloc/reaction_bloc.dart';
 
 final sl = GetIt.instance;
 
@@ -44,6 +47,9 @@ Future<void> setupDependencies() async {
   sl.registerLazySingleton<UploadRepository>(() => UploadRepositoryImpl(
         apiClient: sl<ApiClient>(),
       ));
+  sl.registerLazySingleton<ReactionRepository>(() => ReactionRepositoryImpl(
+        apiClient: sl<ApiClient>(),
+      ));
 
   // Blocs
   sl.registerFactory(() => AuthBloc(
@@ -63,5 +69,9 @@ Future<void> setupDependencies() async {
         ablyService: sl<AblyService>(),
         feedBloc: sl<FeedBloc>(),
         apiClient: sl<ApiClient>(),
+      ));
+  sl.registerFactory(() => ReactionBloc(
+        reactionRepository: sl<ReactionRepository>(),
+        feedBloc: sl<FeedBloc>(),
       ));
 }

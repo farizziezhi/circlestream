@@ -10,6 +10,7 @@ import 'features/circle/bloc/circle_bloc.dart';
 import 'features/feed/bloc/feed_bloc.dart';
 import 'features/camera/bloc/upload_bloc.dart';
 import 'features/realtime/bloc/realtime_bloc.dart';
+import 'features/reaction/bloc/reaction_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +35,9 @@ void main() async {
         ),
         BlocProvider<RealtimeBloc>(
           create: (context) => sl<RealtimeBloc>(),
+        ),
+        BlocProvider<ReactionBloc>(
+          create: (context) => sl<ReactionBloc>(),
         ),
       ],
       child: const CircleStreamApp(),
