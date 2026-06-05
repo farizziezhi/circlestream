@@ -30,6 +30,9 @@ class SecureStorage {
   Future<String?> getUserId() =>
       _storage.read(key: AppConstants.userIdKey);
 
+  Future<void> saveUserId(String id) =>
+      _storage.write(key: AppConstants.userIdKey, value: id);
+
   Future<void> saveUser(UserModel user) =>
       _storage.write(key: 'user_profile', value: jsonEncode(user.toJson()));
 

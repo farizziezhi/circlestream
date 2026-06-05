@@ -222,10 +222,7 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
                       isPrimary: false,
                       onTap: () {
                         SharePlus.instance.share(
-                          ShareParams(
-                            text:
-                                'Gabung circle "$circleName" di CircleStream! Kode: $inviteCode',
-                          ),
+                          'Gabung circle "$circleName" di CircleStream! Kode: $inviteCode',
                         );
                       },
                     ),
