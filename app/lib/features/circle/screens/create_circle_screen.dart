@@ -26,7 +26,7 @@ class CreateCircleScreen extends StatefulWidget {
 
 class _CreateCircleScreenState extends State<CreateCircleScreen> {
   final _nameController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
+  String? _nameError;
 
   @override
   void dispose() {
@@ -35,11 +35,27 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
   }
 
   void _onSubmit() {
-    if (_formKey.currentState!.validate()) {
-      context.read<CircleBloc>().add(
-            CreateCircleEvent(name: _nameController.text.trim()),
-          );
+    setState(() {
+      _nameError = null;
+    });
+
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      setState(() {
+        _nameError = 'Nama circle tidak boleh kosong';
+      });
+      return;
     }
+    if (name.length < 2) {
+      setState(() {
+        _nameError = 'Nama circle minimal 2 karakter';
+      });
+      return;
+    }
+
+    context.read<CircleBloc>().add(
+          CreateCircleEvent(name: name),
+        );
   }
 
   @override
@@ -75,44 +91,34 @@ class _CreateCircleScreenState extends State<CreateCircleScreen> {
         ),
         body: Padding(
           padding: const EdgeInsets.all(AppSpacing.lg),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  'Nama Circle',
-                  style: GoogleFonts.poppins(
-                    textStyle: AppTextStyles.labelMedium,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                AppTextField(
-                  controller: _nameController,
-                  hintText: 'Contoh: Bestie Gang',
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Nama circle tidak boleh kosong';
-                    }
-                    if (value.trim().length < 2) {
-                      return 'Nama circle minimal 2 karakter';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                BlocBuilder<CircleBloc, CircleState>(
-                  builder: (context, state) {
-                    return AppButton(
-                      label: 'Buat Circle',
-                      isLoading: state is CircleLoading,
-                      onTap: state is CircleLoading ? null : _onSubmit,
-                    );
-                  },
-                ),
-              ],
-            ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: AppSpacing.md),
+              AppTextField(
+                label: 'Nama Circle',
+                hint: 'Contoh: Bestie Gang',
+                controller: _nameController,
+                errorText: _nameError,
+                onChanged: (val) {
+                  if (_nameError != null) {
+                    setState(() {
+                      _nameError = null;
+                    });
+                  }
+                },
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              BlocBuilder<CircleBloc, CircleState>(
+                builder: (context, state) {
+                  return AppButton(
+                    label: 'Buat Circle',
+                    isLoading: state is CircleLoading,
+                    onTap: state is CircleLoading ? null : _onSubmit,
+                  );
+                },
+              ),
+            ],
           ),
         ),
       ),
