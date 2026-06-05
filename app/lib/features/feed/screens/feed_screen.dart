@@ -233,47 +233,6 @@ class _FeedScreenState extends State<FeedScreen> {
                                         ),
                                         child: PhotoCard(
                                           post: post,
-                                          onReact: (emoji) async {
-                                            final currentCount = post.reactionCounts[emoji] ?? 0;
-                                            final feedBloc = context.read<FeedBloc>();
-                                            // 1. Optimistic Update directly in FeedBloc
-                                            feedBloc.add(
-                                              ReactionUpdateReceivedEvent(
-                                                postId: post.id,
-                                                emoji: emoji,
-                                                count: currentCount + 1,
-                                              ),
-                                            );
-                                            // Trigger local floating animation instantly
-                                            FloatingEmojiController.instance.trigger(emoji);
-
-                                            try {
-                                              // 2. Call backend reaction endpoint
-                                              final response = await sl<ApiClient>().post(
-                                                Endpoints.postReactions(post.id),
-                                                data: {'emoji': emoji},
-                                              );
-                                              // 3. Update with the actual count from the server response
-                                              final data = response.data as Map<String, dynamic>;
-                                              final actualCount = data['count'] as int;
-                                              feedBloc.add(
-                                                ReactionUpdateReceivedEvent(
-                                                  postId: post.id,
-                                                  emoji: emoji,
-                                                  count: actualCount,
-                                                ),
-                                              );
-                                            } catch (_) {
-                                              // Revert optimistic update on failure
-                                              feedBloc.add(
-                                                ReactionUpdateReceivedEvent(
-                                                  postId: post.id,
-                                                  emoji: emoji,
-                                                  count: currentCount,
-                                                ),
-                                              );
-                                            }
-                                          },
                                         ),
                                       );
                                     },
