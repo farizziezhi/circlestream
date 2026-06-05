@@ -9,7 +9,9 @@ abstract class CircleEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class LoadCirclesEvent extends CircleEvent {}
+class LoadCirclesEvent extends CircleEvent {
+  const LoadCirclesEvent();
+}
 
 class CreateCircleEvent extends CircleEvent {
   final String name;

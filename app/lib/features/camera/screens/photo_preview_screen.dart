@@ -9,7 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../design/app_colors.dart';
 import '../../../design/app_radius.dart';
 import '../../../design/app_spacing.dart';
-import '../../../design/app_text_styles.dart';
 import '../../../shared/widgets/app_button.dart';
 import '../bloc/upload_bloc.dart';
 import '../bloc/upload_event.dart';

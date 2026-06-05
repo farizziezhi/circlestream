@@ -235,8 +235,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                           post: post,
                                           onReact: (emoji) async {
                                             final currentCount = post.reactionCounts[emoji] ?? 0;
+                                            final feedBloc = context.read<FeedBloc>();
                                             // 1. Optimistic Update directly in FeedBloc
-                                            context.read<FeedBloc>().add(
+                                            feedBloc.add(
                                               ReactionUpdateReceivedEvent(
                                                 postId: post.id,
                                                 emoji: emoji,
@@ -255,7 +256,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                               // 3. Update with the actual count from the server response
                                               final data = response.data as Map<String, dynamic>;
                                               final actualCount = data['count'] as int;
-                                              context.read<FeedBloc>().add(
+                                              feedBloc.add(
                                                 ReactionUpdateReceivedEvent(
                                                   postId: post.id,
                                                   emoji: emoji,
@@ -264,7 +265,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                               );
                                             } catch (_) {
                                               // Revert optimistic update on failure
-                                              context.read<FeedBloc>().add(
+                                              feedBloc.add(
                                                 ReactionUpdateReceivedEvent(
                                                   postId: post.id,
                                                   emoji: emoji,

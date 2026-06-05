@@ -27,7 +27,6 @@ import '../../features/circle/bloc/circle_state.dart';
 import '../../features/feed/bloc/feed_bloc.dart';
 import '../../features/feed/bloc/feed_state.dart';
 import '../../shared/models/post_model.dart';
-import '../../shared/models/circle_model.dart';
 import '../../../design/app_colors.dart';
 import '../../shared/widgets/app_bottom_nav.dart';
 import '../di/injection.dart';

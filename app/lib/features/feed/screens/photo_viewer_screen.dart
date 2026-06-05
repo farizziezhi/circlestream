@@ -9,20 +9,15 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../../core/di/injection.dart';
 import '../../../core/network/api_client.dart';
 import '../../../core/network/endpoints.dart';
-import '../../../design/app_colors.dart';
 import '../../../design/app_spacing.dart';
-import '../../../design/app_text_styles.dart';
 import '../../../shared/models/post_model.dart';
 import '../../../shared/widgets/app_loading_indicator.dart';
 import '../../../shared/widgets/avatar_widget.dart';
 import '../../reaction/widgets/floating_emoji_animation.dart';
-import '../../realtime/bloc/realtime_bloc.dart';
-import '../../realtime/bloc/realtime_state.dart';
 import '../bloc/feed_bloc.dart';
 import '../bloc/feed_event.dart';
 import '../bloc/feed_state.dart';
 import '../data/feed_repository.dart';
-import '../widgets/photo_card.dart';
 import '../../reaction/widgets/emoji_reaction_bar.dart';
 
 class PhotoViewerScreen extends StatefulWidget {
@@ -85,8 +80,9 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
 
   Future<void> _react(String emoji, PostModel currentPost) async {
     final currentCount = currentPost.reactionCounts[emoji] ?? 0;
+    final feedBloc = context.read<FeedBloc>();
     // 1. Optimistic Update directly in FeedBloc
-    context.read<FeedBloc>().add(
+    feedBloc.add(
           ReactionUpdateReceivedEvent(
             postId: currentPost.id,
             emoji: emoji,
@@ -105,7 +101,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
       // 3. Update with the actual count from the server response
       final data = response.data as Map<String, dynamic>;
       final actualCount = data['count'] as int;
-      context.read<FeedBloc>().add(
+      feedBloc.add(
             ReactionUpdateReceivedEvent(
               postId: currentPost.id,
               emoji: emoji,
@@ -114,7 +110,7 @@ class _PhotoViewerScreenState extends State<PhotoViewerScreen> {
           );
     } catch (_) {
       // Revert optimistic update on failure
-      context.read<FeedBloc>().add(
+      feedBloc.add(
             ReactionUpdateReceivedEvent(
               postId: currentPost.id,
               emoji: emoji,
