@@ -18,6 +18,17 @@ import '../../features/circle/screens/join_circle_screen.dart';
 import '../../features/feed/screens/feed_screen.dart';
 import '../../features/feed/screens/photo_viewer_screen.dart';
 import '../../features/profile/screens/profile_screen.dart';
+import 'dart:io';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../../features/camera/screens/camera_capture_screen.dart';
+import '../../features/camera/screens/photo_preview_screen.dart';
+import '../../features/circle/bloc/circle_bloc.dart';
+import '../../features/circle/bloc/circle_state.dart';
+import '../../features/feed/bloc/feed_bloc.dart';
+import '../../features/feed/bloc/feed_state.dart';
+import '../../shared/models/post_model.dart';
+import '../../shared/models/circle_model.dart';
+import '../../../design/app_colors.dart';
 import '../../shared/widgets/app_bottom_nav.dart';
 import '../di/injection.dart';
 
@@ -58,7 +69,40 @@ class MainShell extends StatelessWidget {
       bottomNavigationBar: AppBottomNav(
         currentIndex: shell.currentIndex,
         onTap: (index) {
-          shell.goBranch(index);
+          if (index == 1) {
+            final circleState = context.read<CircleBloc>().state;
+            if (circleState is CircleListLoaded && circleState.circles.isNotEmpty) {
+              int circleId = circleState.circles.first.id;
+              String circleName = circleState.circles.first.name;
+
+              final feedState = context.read<FeedBloc>().state;
+              if (feedState is FeedLoaded) {
+                final activeCircle = circleState.circles.firstWhere(
+                  (c) => c.id == feedState.circleId,
+                  orElse: () => circleState.circles.first,
+                );
+                circleId = activeCircle.id;
+                circleName = activeCircle.name;
+              }
+
+              context.push(
+                '/camera/capture',
+                extra: {
+                  'circleId': circleId,
+                  'circleName': circleName,
+                },
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Kamu belum bergabung dengan circle mana pun. Buat atau gabung circle terlebih dahulu!'),
+                  backgroundColor: AppColors.warning,
+                ),
+              );
+            }
+          } else {
+            shell.goBranch(index);
+          }
         },
       ),
     );
@@ -91,6 +135,32 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/splash',
       builder: (context, state) => const SplashScreen(),
+    ),
+    GoRoute(
+      path: '/camera/capture',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        final circleId = extra['circleId'] as int;
+        final circleName = extra['circleName'] as String;
+        return CameraCaptureScreen(
+          circleId: circleId,
+          circleName: circleName,
+        );
+      },
+    ),
+    GoRoute(
+      path: '/camera/preview',
+      builder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>;
+        final imageFile = extra['imageFile'] as File;
+        final circleId = extra['circleId'] as int;
+        final circleName = extra['circleName'] as String;
+        return PhotoPreviewScreen(
+          imageFile: imageFile,
+          circleId: circleId,
+          circleName: circleName,
+        );
+      },
     ),
     
     // Auth flow routes wrapped in AuthShell
@@ -127,7 +197,11 @@ final appRouter = GoRouter(
                   path: 'post/:postId',
                   builder: (context, state) {
                     final postId = state.pathParameters['postId']!;
-                    return PhotoViewerScreen(postId: postId);
+                    final post = state.extra as PostModel?;
+                    return PhotoViewerScreen(
+                      postId: postId,
+                      post: post,
+                    );
                   },
                 ),
               ],
