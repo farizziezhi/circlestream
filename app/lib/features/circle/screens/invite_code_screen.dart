@@ -216,7 +216,9 @@ class _InviteCodeScreenState extends State<InviteCodeScreen> {
                                 isPrimary: false,
                                 onTap: () {
                                   SharePlus.instance.share(
-                                    'Gabung ke circle saya di CircleStream! Gunakan kode undangan ini: ${primaryActiveCode.code}',
+                                    ShareParams(
+                                      text: 'Gabung ke circle saya di CircleStream! Gunakan kode undangan ini: ${primaryActiveCode.code}',
+                                    ),
                                   );
                                 },
                               ),
@@ -352,7 +354,7 @@ class _InviteCodeScreenState extends State<InviteCodeScreen> {
                           borderRadius: BorderRadius.circular(AppRadius.sm),
                         ),
                         child: Row(
-                          mainAxisAlignment: MainAxisAlignment.between,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
