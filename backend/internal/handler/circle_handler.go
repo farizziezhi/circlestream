@@ -33,6 +33,19 @@ func (h *CircleHandler) Create(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(resp)
 }
 
+func (h *CircleHandler) ListUserCircles(c *fiber.Ctx) error {
+	userID := c.Locals("user_id").(int64)
+
+	circles, err := h.circleSvc.GetUserCircles(c.Context(), userID)
+	if err != nil {
+		return handleCircleError(c, err)
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"circles": circles,
+	})
+}
+
 func (h *CircleHandler) Join(c *fiber.Ctx) error {
 	userID := c.Locals("user_id").(int64)
 

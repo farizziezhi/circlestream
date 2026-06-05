@@ -33,6 +33,7 @@ type CircleService interface {
 	GetMembers(ctx context.Context, circleID int64) ([]dto.CircleMemberResponse, error)
 	CreateInviteCode(ctx context.Context, circleID int64, maxUses *int, expiresAt *time.Time) (*dto.InviteCodeResponseData, error)
 	ListInviteCodes(ctx context.Context, circleID int64) ([]dto.InviteCodeResponseData, error)
+	GetUserCircles(ctx context.Context, userID int64) ([]dto.CircleDetailResponseData, error)
 }
 
 type circleService struct {
@@ -364,6 +365,25 @@ func (s *circleService) ListInviteCodes(ctx context.Context, circleID int64) ([]
 			UsedCount: ic.UsedCount,
 			ExpiresAt: ic.ExpiresAt,
 			CreatedAt: ic.CreatedAt,
+		})
+	}
+	return resp, nil
+}
+
+func (s *circleService) GetUserCircles(ctx context.Context, userID int64) ([]dto.CircleDetailResponseData, error) {
+	circles, err := s.circleRepo.GetUserCircles(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	var resp []dto.CircleDetailResponseData
+	for _, c := range circles {
+		resp = append(resp, dto.CircleDetailResponseData{
+			ID:          c.ID,
+			Name:        c.Name,
+			OwnerID:     c.OwnerID,
+			MemberCount: c.MemberCount,
+			CreatedAt:   c.CreatedAt,
 		})
 	}
 	return resp, nil

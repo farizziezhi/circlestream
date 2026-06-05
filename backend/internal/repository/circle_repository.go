@@ -16,6 +16,14 @@ type CircleMemberWithUser struct {
 	Username string    `db:"username"`
 }
 
+type CircleWithMemberCount struct {
+	ID          int64     `db:"id"`
+	Name        string    `db:"name"`
+	OwnerID     int64     `db:"owner_id"`
+	MemberCount int       `db:"member_count"`
+	CreatedAt   time.Time `db:"created_at"`
+}
+
 type CircleRepository interface {
 	CreateCircle(ctx context.Context, tx *sql.Tx, circle *model.Circle) error
 	FindByID(ctx context.Context, id int64) (*model.Circle, error)
@@ -25,6 +33,7 @@ type CircleRepository interface {
 	GetMembers(ctx context.Context, circleID int64) ([]CircleMemberWithUser, error)
 	IsMember(ctx context.Context, circleID, userID int64) (bool, error)
 	GetMemberRole(ctx context.Context, circleID, userID int64) (string, error)
+	GetUserCircles(ctx context.Context, userID int64) ([]CircleWithMemberCount, error)
 }
 
 type circleRepository struct {
@@ -139,4 +148,34 @@ func (r *circleRepository) GetMemberRole(ctx context.Context, circleID, userID i
 		return "", nil
 	}
 	return role, err
+}
+
+func (r *circleRepository) GetUserCircles(ctx context.Context, userID int64) ([]CircleWithMemberCount, error) {
+	query := `
+		SELECT c.id, c.name, c.owner_id,
+			(SELECT COUNT(*) FROM circle_members WHERE circle_id = c.id) AS member_count,
+			c.created_at
+		FROM circles c
+		JOIN circle_members cm ON c.id = cm.circle_id
+		WHERE cm.user_id = ?
+		ORDER BY c.created_at DESC
+	`
+	rows, err := r.db.QueryContext(ctx, query, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var circles []CircleWithMemberCount
+	for rows.Next() {
+		var c CircleWithMemberCount
+		var createdAtStr string
+		err := rows.Scan(&c.ID, &c.Name, &c.OwnerID, &c.MemberCount, &createdAtStr)
+		if err != nil {
+			return nil, err
+		}
+		c.CreatedAt = parseSQLiteTime(createdAtStr)
+		circles = append(circles, c)
+	}
+	return circles, nil
 }

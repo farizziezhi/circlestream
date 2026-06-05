@@ -84,6 +84,7 @@ func Setup(app *fiber.App, db *sql.DB, cfg *config.Config) {
 	protected.Post("/media/finalize", mediaHandler.Finalize)
 
 	// Circle routes
+	protected.Get("/circles", circleHandler.ListUserCircles)
 	protected.Post("/circles", circleHandler.Create)
 	protected.Post("/circles/join", circleHandler.Join)
 
